@@ -1,7 +1,8 @@
-
 ((window: any) => {
 
   const functions: any = {};
+  functions.host = 'https://ui.impact.com'
+  functions.log = [];
 
   type Environment = {
     id: string,
@@ -61,17 +62,22 @@
       }
   ]
   */
-  functions.appendEl = function(vdomEls: elDef[]): void {
+  functions.appendEl = function(vdomEls: elDef[], 
+      projectName: string, 
+      environments?: EnvironmentsFile): void {
+
     vdomEls.forEach((elDef) => {
       const el = document.createElement(elDef.el);
-      (elDef.attrs || []).forEach((attrDef) => {
-        el.setAttribute(attrDef[0], attrDef[1]);
+      (elDef.attrs || []).forEach(async (attrDef) => {
+        el.setAttribute(attrDef[0], 
+          await functions.getEnvironmentUrl(attrDef[1], projectName, environments));
       });
       document.querySelector(elDef.target || 'head')!.appendChild(el);
     });
+    
   }
   
-  functions.getEnvironmentUrl = async function (template: string, projectName: string): Promise<string> {
+  functions.getEnvironmentUrl = async function (template: string, projectName: string, environments?: EnvironmentsFile): Promise<string> {
 
     const env = functions.getCurrentEnvironmentString(projectName);
 
@@ -79,11 +85,15 @@
       return env + '/' + functions.getFilenameFromURL(template);
     }
 
-    let configUrl = `https://ui.impact.com/${projectName}/environments.json`;
+    let configUrl = `${functions.host}/${projectName}/environments.json`;
     
     //cache
     if (configCache[projectName] === undefined) {
-      const conf: EnvironmentsFile = await fetch(configUrl).then(r => r.json());
+      const conf: EnvironmentsFile = environments || await fetch(configUrl)
+      .then(r => r.json()).catch(e => {
+        functions.log.push({f: "getEnvironmentUrl->fetch", template, projectName, e})
+        return {}
+      });
       configCache[projectName] = conf?.configuration?.environments
         .reduce((acc: EnvironmentMap, v: Environment) => {
           acc[v.id] = v;
