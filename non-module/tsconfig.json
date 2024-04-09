@@ -1,0 +1,30 @@
+{
+  "compilerOptions": {
+    "target": "ESNext",
+    "useDefineForClassFields": true,
+    "module": "NodeNext",
+     "lib": ["ESNext", "DOM"],
+     "noEmit": true,
+  
+    "skipLibCheck": false,
+
+    /* Bundler mode */
+    "moduleResolution": "NodeNext",
+    "allowImportingTsExtensions": true,
+    "resolveJsonModule": true,
+    // "isolatedModules": true,
+     //"noEmit": true,
+
+    /* Linting */
+    "strict": true,
+    "noUnusedLocals": false,
+    "noUnusedParameters": true,
+    "noFallthroughCasesInSwitch": true,
+
+  },
+  "include": ["tool.ts"],
+  
+  "exclude": [
+    "node_modules", "dist", "**/*.spec.ts", "**/*.test.ts"
+  ]
+}

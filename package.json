@@ -1,0 +1,27 @@
+{
+  "name": "envfriend",
+  "private": false,
+  "main": "dist/index.cjs.js",
+  "module": "dist/index.es.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "version": "0.0.1",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build:vite": "tsc && vite build",
+    "build": "tsc src/tool.ts --outfile dist/tool.js",
+    "preview": "vite preview",
+    "test": "vitest --run --dom"
+  },
+  "devDependencies": {
+    "@types/node": "^20.12.5",
+    "happy-dom": "^14.7.1",
+    "typescript": "^5.0.2",
+    "vite": "^4.4.0",
+    "vite-plugin-dts": "^3.8.1",
+    "vitest": "1.4.0"
+  }
+}
