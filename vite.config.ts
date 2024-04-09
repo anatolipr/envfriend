@@ -10,7 +10,7 @@ export default defineConfig({
     sourcemap: true,
     lib: { 
         entry: resolve(__dirname, 'src/main.ts'), 
-        formats: ["es"],
+        formats: ["es", "cjs"],
         fileName: (format) => `index.${format}.js`,
     } 
   },
