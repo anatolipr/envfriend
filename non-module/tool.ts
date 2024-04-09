@@ -73,6 +73,7 @@
           await functions.getEnvironmentUrl(attrDef[1], projectName, environments));
       });
       document.querySelector(elDef.target || 'head')!.appendChild(el);
+      functions.log.push({f: 'appendEl', p: {vdomEls, projectName, environments}})
     });
     
   }
