@@ -5,14 +5,14 @@
 The content of the body element is displayed in your browser.
 
 
-<script src="https://cdn.jsdelivr.net/npm/envfriend@0.0.7/dist/tool.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/envfriend@0.0.8/dist/tool.js"></script>
 
 <script>
 
     window._imenvt_ = 'st1'//usually already defined
 
-    prj = 'tests/core-ui';
-    envs = {configuration: {environments: [
+    project = 'tests/core-ui';
+    environments = {configuration: {environments: [
      {id:'pd1'}, 
      {id:'st1'}
     ]}}
@@ -21,7 +21,7 @@ The content of the body element is displayed in your browser.
         {el: 'iframe', 
         attrs: [['src','https://storage.googleapis.com/ui-impact-com/tests/core-ui/{env}/index.html']], 
         target: 'body'}
-    ], prj, envs);
+    ], {project, environments});
 
 </script>
 

@@ -1,6 +1,7 @@
 import { test, expect, vi, describe } from 'vitest';
 
 import  './tool.ts'
+import { hostname } from 'os';
 
 
 declare global {
@@ -71,7 +72,7 @@ test('test retrieval from configuration url', async () => {
 
     (fetch as any).mockResolvedValue(createFetchResponse(mockConfig))
     
-    let replaced = await window.__envfriend.getEnvironmentUrl('https://example.com/{env}/index.html', 'squad1/projectX')
+    let replaced = await window.__envfriend.getEnvironmentUrl('https://example.com/{env}/index.html', {project: 'squad1/projectX'})
     expect(replaced).toBe('https://example.com/pd1/index.html')
 
     expect(fetch).toHaveBeenLastCalledWith(`https://ui.impact.com/squad1/projectX/environments.json`);
@@ -81,7 +82,7 @@ test('test retrieval from configuration url', async () => {
     window._imenvt_ = 'unknown';
 
 
-    let replaced2 = await window.__envfriend.getEnvironmentUrl('https://example.com/{env}/index.html', 'squad1/projectX')
+    let replaced2 = await window.__envfriend.getEnvironmentUrl('https://example.com/{env}/index.html',{project: 'squad1/projectX'})
     //first fetch will be cached
     expect(fetch).toBeCalledTimes(1);
     
@@ -90,12 +91,26 @@ test('test retrieval from configuration url', async () => {
     //test id
 
     window._imenvt_ = 'stage27';
-    let replaced3 = await window.__envfriend.getEnvironmentUrl('https://example.com/{env}/index.html', 'squad1')
+    let replaced3 = await window.__envfriend.getEnvironmentUrl('https://example.com/{env}/index.html', {project:'squad1'})
     expect(replaced3).toBe('https://example.com/stage27/index.html')
 
 })
 
+test('override host', async () => {
 
+    window._imenvt_ = undefined;
+    expect(window._imenvt_).toBeUndefined();
+
+    (fetch as any).mockResolvedValue(createFetchResponse(mockConfig))
+    
+    let replaced = await window.__envfriend.getEnvironmentUrl('https://example.com/{env}/index.html', 
+    {project: 'testConfigHost', host:"https://foo.cdn.com"})
+    expect(replaced).toBe('https://example.com/pd1/index.html')
+
+    expect(fetch).toHaveBeenLastCalledWith(`https://foo.cdn.com/testConfigHost/environments.json`);
+    
+
+})
 
 test('appendEl', async () => {
 
@@ -103,8 +118,8 @@ test('appendEl', async () => {
 
     const spy = vi.spyOn(document.body, 'appendChild');
 
-    const prj = 'tests/core-ui';
-    const envs = {configuration: {
+    const project = 'tests/core-ui';
+    const environments = {configuration: {
         environments: [
         {id:'pd1'}, 
         {id:'st1'}
@@ -116,7 +131,7 @@ test('appendEl', async () => {
         ], target: 'body'}
     ];
 
-    await window.__envfriend.appendEl(dom, prj, envs)
+    await window.__envfriend.appendEl(dom, {project, environments})
 
     const el = document.createElement('script');
     el.src = 'https://storage.googleapis.com/tests/core-ui/st1/index.html'
@@ -137,7 +152,7 @@ test('appendEl', async () => {
 
     const el1 = document.createElement('script');
     el1.src = 'https://storage.googleapis.com/foobar/pd1/index.html';
-    await window.__envfriend.appendEl(dom2, "foobar")
+    await window.__envfriend.appendEl(dom2, {project: "foobar"})
     expect(document.body.appendChild).toHaveBeenCalledWith(el1);
     
 
