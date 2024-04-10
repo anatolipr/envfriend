@@ -62,22 +62,30 @@
       }
   ]
   */
-  functions.appendEl = function(vdomEls: elDef[], 
-      projectName: string, 
-      environments?: EnvironmentsFile): void {
+  functions.appendEl = async function(vdomEls: elDef[], projectName: string, 
+      environments?: EnvironmentsFile): Promise<void> {
 
-    vdomEls.forEach((elDef) => {
-      const el = document.createElement(elDef.el);
-      (elDef.attrs || []).forEach(async (attrDef) => {
-        el.setAttribute(attrDef[0], 
-          await functions.getEnvironmentUrl(attrDef[1], projectName, environments));
-      });
-      document.querySelector(elDef.target || 'head')!.appendChild(el);
-      functions.log.push({f: 'appendEl', p: {vdomEls, projectName, environments}})
-    });
-    
+      for (let i = 0; i < vdomEls.length; i++) {
+        const elDef = vdomEls[i];
+        const el = document.createElement(elDef.el);
+
+        for (let b = 0; b < (elDef.attrs||[]).length; b++) {
+          
+          const attrDef = elDef.attrs[b];
+
+          el.setAttribute(attrDef[0], 
+            (attrDef[1] || '').indexOf('{env}') === -1 ? attrDef[1] 
+              : await functions.getEnvironmentUrl(attrDef[1], projectName, environments));
+          
+        }
+
+        document.querySelector(elDef.target || 'head')!.appendChild(el);
+        functions.log.push({f: 'appendEl', p: {vdomEls, projectName, environments}})
+      }
   }
   
+  
+
   functions.getEnvironmentUrl = async function (template: string, projectName: string, environments?: EnvironmentsFile): Promise<string> {
 
     const env = functions.getCurrentEnvironmentString(projectName);

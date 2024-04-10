@@ -100,6 +100,34 @@ test('', async () => {
 
 
 
+test('appendEl', async () => {
+
+    window._imenvt_ = 'st1';
+
+    const spy = vi.spyOn(document.body, 'appendChild')
+
+    const prj = 'tests/core-ui';
+    const envs = {configuration: {environments: [
+     {id:'pd1'}, 
+     {id:'st1'}
+    ]}}
+
+    const dom = [
+        {el: 'iframe', 
+        attrs: [['src','https://storage.googleapis.com/tests/core-ui/{env}/index.html']], 
+        target: 'body'}
+    ];
+
+
+    await window.__envfriend.appendEl(dom, prj, envs)
+
+    const x = document.createElement('iframe')
+    x.src = 'https://storage.googleapis.com/tests/core-ui/st1/index.html'
+    expect(document.body.appendChild).toHaveBeenCalledWith(x)
+
+})
+
+
 /*TODO
 - test failing fetch
 - incorrect configuration json
