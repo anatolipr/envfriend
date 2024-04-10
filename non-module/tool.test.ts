@@ -37,10 +37,8 @@ test('getCurrentEnvironmentString overrideCurrentEnvironment', () => {
 });
 
 test('getFilenameFromURL', () => {
-
     expect(window.__envfriend.getFilenameFromURL('https://www.example.com/path/file1.txt')).toBe('file1.txt')
-
-})
+});
 
 const mockConfig: {} = {
     "name": "sales",
@@ -66,24 +64,24 @@ const mockConfig: {} = {
         ]
     }};
 
-test('', async () => {
+test('test retrieval from configuration url', async () => {
 
     window._imenvt_ = undefined;
     expect(window._imenvt_).toBeUndefined();
 
     (fetch as any).mockResolvedValue(createFetchResponse(mockConfig))
     
-    let replaced = await window.__envfriend.getEnvironmentUrl('https://example.com/{env}/index.html', 'squad1')
+    let replaced = await window.__envfriend.getEnvironmentUrl('https://example.com/{env}/index.html', 'squad1/projectX')
     expect(replaced).toBe('https://example.com/pd1/index.html')
 
-    expect(fetch).toHaveBeenLastCalledWith(`https://ui.impact.com/squad1/environments.json`);
+    expect(fetch).toHaveBeenLastCalledWith(`https://ui.impact.com/squad1/projectX/environments.json`);
     
 
     //test value not in config
     window._imenvt_ = 'unknown';
 
 
-    let replaced2 = await window.__envfriend.getEnvironmentUrl('https://example.com/{env}/index.html', 'squad1')
+    let replaced2 = await window.__envfriend.getEnvironmentUrl('https://example.com/{env}/index.html', 'squad1/projectX')
     //first fetch will be cached
     expect(fetch).toBeCalledTimes(1);
     
@@ -95,7 +93,6 @@ test('', async () => {
     let replaced3 = await window.__envfriend.getEnvironmentUrl('https://example.com/{env}/index.html', 'squad1')
     expect(replaced3).toBe('https://example.com/stage27/index.html')
 
-
 })
 
 
@@ -104,28 +101,49 @@ test('appendEl', async () => {
 
     window._imenvt_ = 'st1';
 
-    const spy = vi.spyOn(document.body, 'appendChild')
+    const spy = vi.spyOn(document.body, 'appendChild');
 
     const prj = 'tests/core-ui';
-    const envs = {configuration: {environments: [
-     {id:'pd1'}, 
-     {id:'st1'}
-    ]}}
+    const envs = {configuration: {
+        environments: [
+        {id:'pd1'}, 
+        {id:'st1'}
+        ]}}
 
     const dom = [
-        {el: 'iframe', 
-        attrs: [['src','https://storage.googleapis.com/tests/core-ui/{env}/index.html']], 
-        target: 'body'}
+        {el: 'script', attrs: [
+            ['src','https://storage.googleapis.com/tests/core-ui/{env}/index.html']
+        ], target: 'body'}
     ];
-
 
     await window.__envfriend.appendEl(dom, prj, envs)
 
-    const x = document.createElement('iframe')
-    x.src = 'https://storage.googleapis.com/tests/core-ui/st1/index.html'
-    expect(document.body.appendChild).toHaveBeenCalledWith(x)
+    const el = document.createElement('script');
+    el.src = 'https://storage.googleapis.com/tests/core-ui/st1/index.html'
+    expect(document.body.appendChild).toHaveBeenCalledWith(el);
+
+    
+    
+    window._imenvt_ = 'production';
+
+    (fetch as any).mockResolvedValue(createFetchResponse(mockConfig));
+
+
+    const dom2 = [
+        {el: 'script', attrs: [
+            ['src','https://storage.googleapis.com/foobar/{env}/index.html']
+        ], target: 'body'}
+    ];
+
+    const el1 = document.createElement('script');
+    el1.src = 'https://storage.googleapis.com/foobar/pd1/index.html';
+    await window.__envfriend.appendEl(dom2, "foobar")
+    expect(document.body.appendChild).toHaveBeenCalledWith(el1);
+    
+
 
 })
+
 
 
 /*TODO
