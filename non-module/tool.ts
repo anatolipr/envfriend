@@ -6,7 +6,9 @@
 
   type Environment = {
     id: string,
-    bucketPath?: string
+    bucketPath?: string,
+    name: string,
+    usageNote: string
   }
 
   type EnvironmentMap = {
@@ -50,7 +52,10 @@
   }
 
   let configCache: {[k:string]: EnvironmentMap} = {};
+  let useCount: {[k: string]: number} = {};
+
   functions.configCache = configCache;
+  functions.useCount = useCount;
 
   (window as any).__envfriend = functions;
 
@@ -146,6 +151,8 @@
   functions.getEnvironmentUrl = async function (template: string, opts: Options): Promise<string> {
     
     const env = functions.getCurrentEnvironmentString(opts.project);
+
+    useCount[opts.project] = (useCount[opts.project] || 0) + 1;
 
     if (env.match(/^https?:/i)) {
       return env + '/' + functions.getFilenameFromURL(template);
