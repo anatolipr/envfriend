@@ -3,6 +3,8 @@
   const functions: any = {};
   functions.host = 'https://ui.impact.com'
   functions.log = [];
+  functions._imenvt_ = (window as any)._imenvt_;
+
 
   type Environment = {
     id: string,
