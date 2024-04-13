@@ -9,8 +9,8 @@
   type Environment = {
     id: string,
     bucketPath?: string,
-    name: string,
-    usageNote: string
+    name?: string,
+    usageNote?: string
   }
 
   type EnvironmentMap = {
@@ -127,18 +127,24 @@
         const elDef = vdomEls[i];
         const el = document.createElement(elDef.el);
 
+        const resultLogValue = {...elDef};
+        
         for (let b = 0; b < (elDef.attrs||[]).length; b++) {
           
           const attrDef = elDef.attrs[b];
 
-          el.setAttribute(attrDef[0], 
-            (attrDef[1] || '').indexOf('{env}') === -1 ? attrDef[1] 
-              : await functions.getEnvironmentUrl(attrDef[1], opts));
+          const attrVal = (attrDef[1] || '').indexOf('{env}') === -1 ? attrDef[1]
+            : await functions.getEnvironmentUrl(attrDef[1], opts);
+          
+          resultLogValue.attrs[b][1] = attrVal;
+
+          el.setAttribute(attrDef[0], attrVal);
           
         }
 
         document.querySelector(elDef.target || 'head')!.appendChild(el);
-        functions.log.push({f: 'appendEl', p: {vdomEls, opts}})
+
+        functions.log.push({f: 'appendEl', p: {elDef, trEl: resultLogValue, opts}});
       }
   }
   
@@ -156,9 +162,6 @@
 
     useCount[opts.project] = (useCount[opts.project] || 0) + 1;
 
-    if (env.match(/^https?:/i)) {
-      return env + '/' + functions.getFilenameFromURL(template);
-    }
 
     let configUrl = `${opts.host || functions.host}/${opts.project}/environments.json`;
     
@@ -174,6 +177,12 @@
           acc[v.id] = v;
           return acc;
         }, {}) || {};
+    }
+
+    if (env.match(/^https?:/i)) {
+      const override = `${env}/${functions.getFilenameFromURL(template)}`;
+      configCache[opts.project][env] = {id: env}
+      return override;
     }
 
     const currentConfig = configCache[opts.project];

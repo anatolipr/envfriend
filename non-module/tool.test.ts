@@ -159,7 +159,37 @@ test('appendEl', async () => {
 
 })
 
+test('override with absolute url', async () => {
 
+
+    window._imenvt_ = 'pd1';
+
+    const environments = {configuration: {
+        environments: [
+        {id:'pd1'}, 
+        {id:'st1'}
+        ]}}
+
+
+    expect(await window.__envfriend.getEnvironmentUrl('{env}/index.html', 
+    {project: 'fooproj1', environments})).toBe('pd1/index.html');
+
+    expect(window.__envfriend.configCache.fooproj1.pd1.id).toBe('pd1')
+    expect(window.__envfriend.configCache.fooproj1.st1.id).toBe('st1')
+
+    window.__envfriend.overrideCurrentEnvironment('fooproj1', 'http://www.example.com');
+
+    expect(await window.__envfriend.getEnvironmentUrl('{env}/index.html', 
+    {project: 'fooproj1', environments})).toBe('http://www.example.com/index.html');
+
+    expect(window.__envfriend.configCache.fooproj1['http://www.example.com'].id).toBe('http://www.example.com')
+
+    window.__envfriend.overrideCurrentEnvironment('fooproj1');
+
+    //sticky until we reload the page for convenience...
+    expect(window.__envfriend.configCache.fooproj1['http://www.example.com'].id).toBe('http://www.example.com')
+
+})
 
 /*TODO
 - test failing fetch
