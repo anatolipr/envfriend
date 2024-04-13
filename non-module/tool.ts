@@ -183,6 +183,8 @@
       const override = `${env}/${functions.getFilenameFromURL(template)}`;
       configCache[opts.project][env] = {id: env}
       return override;
+    } else if (env.match(/!/)) {
+      configCache[opts.project][env] = {id: env, bucketPath: env.replaceAll('!','')}
     }
 
     const currentConfig = configCache[opts.project];

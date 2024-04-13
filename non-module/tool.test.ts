@@ -191,6 +191,28 @@ test('override with absolute url', async () => {
 
 })
 
+test('test non-configured environment override', async () => {
+    window._imenvt_ = 'pd1';
+
+    const environments = {configuration: {
+        environments: [
+        {id:'pd1'}, 
+        {id:'st1'}
+    ]}}
+
+    expect(await window.__envfriend.getEnvironmentUrl('{env}/index.html', 
+    {project: 'fooproj1', environments})).toBe('pd1/index.html');
+
+    window.__envfriend.overrideCurrentEnvironment('fooproj1', 'st2!');
+
+    expect(await window.__envfriend.getEnvironmentUrl('{env}/index.html', 
+    {project: 'fooproj1', environments})).toBe('st2/index.html');
+
+    expect(window.__envfriend.configCache.fooproj1['st2!'].id).toBe('st2!')
+    expect(window.__envfriend.configCache.fooproj1['st2!'].bucketPath).toBe('st2')
+
+})
+
 /*TODO
 - test failing fetch
 - incorrect configuration json
