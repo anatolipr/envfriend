@@ -75,7 +75,7 @@
     const date = !!override
       ? 'Fri, 31 Dec 9999 23:59:59 GMT'
       : 'Thu, 01 Jan 1970 00:00:01 GMT';
-    document.cookie = `_imenvt_${project}=${override}; expires=${date}; path=/`;
+    document.cookie = `_imenvt_${getCookieName(project)}=${override}; expires=${date}; path=/`;
 
     console.log('Overrde applied', override)
   }
@@ -101,7 +101,7 @@
     }
 
     let override = document.cookie.match(
-      new RegExp(`(^| )_imenvt_${project}=([^;]+)`)
+      new RegExp(`(^| )_imenvt_${getCookieName(project)}=([^;]+)`)
     )?.[2];
     return override || (window as any)._imenvt_ || 'production';
   }
@@ -197,6 +197,10 @@
       )
     }
 
+  }
+
+  function getCookieName(val: string): string {
+    return (val||'').replace(/[^a-zA-Z0-9_-]/g, '')
   }
 
 })(globalThis)
