@@ -3,6 +3,9 @@
   const functions: any = {};
   functions.host = 'https://ui.impact.com'
   functions.log = [];
+
+  (window as any)._imenvt_ = (window as any)._imenvt_  || new URLSearchParams(window.location.search).get('_imenvt_') || undefined;
+
   functions._imenvt_ = (window as any)._imenvt_;
 
 
