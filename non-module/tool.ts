@@ -75,12 +75,15 @@
       throw "project parameter is required"
     }
 
-    const date = !!override
-      ? 'Fri, 31 Dec 9999 23:59:59 GMT'
-      : 'Thu, 01 Jan 1970 00:00:01 GMT';
-    document.cookie = `_imenvt_${getCookieName(project)}=${override}; expires=${date}; path=/`;
+    const STORAGEKEY = getStorageKey(project)
 
-    console.log('Overrde applied', override)
+    if (!!override) {
+      localStorage.setItem(STORAGEKEY, override)
+    } else {
+      localStorage.removeItem(STORAGEKEY)
+    }
+ 
+    console.log(`${project} Overrde applied`, override)
   }
 
   /**
@@ -103,9 +106,7 @@
       throw "project parameter is required"
     }
 
-    let override = document.cookie.match(
-      new RegExp(`(^| )_imenvt_${getCookieName(project)}=([^;]+)`)
-    )?.[2];
+    let override = localStorage.getItem(getStorageKey(project));
     return override || (window as any)._imenvt_ || 'production';
   }
 
@@ -162,9 +163,7 @@
   functions.getEnvironmentUrl = async function (template: string, opts: Options): Promise<string> {
     
     const env = functions.getCurrentEnvironmentString(opts.project);
-
     useCount[opts.project] = (useCount[opts.project] || 0) + 1;
-
 
     let configUrl = `${opts.host || functions.host}/${opts.project}/environments.json`;
     
@@ -200,6 +199,10 @@
       )
     }
 
+  }
+
+  function getStorageKey(project: string) {
+    return `_imenvt_${getCookieName(project)}`;
   }
 
   function getCookieName(val: string): string {
